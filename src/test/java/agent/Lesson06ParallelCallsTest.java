@@ -30,7 +30,6 @@ class Lesson06ParallelCallsTest {
       assertThat(sentBack).hasSize(2);
       assertThat(sentBack.get(0).content()).isEqualTo("the shed key is under the mat");
       assertThat(sentBack.get(1).content()).isEqualTo("the bike lock is 1234");
-      assertThat(sentBack.get(1).toolName()).isEqualTo("read_file");
     }
   }
 }

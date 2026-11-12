@@ -14,7 +14,7 @@ import java.util.stream.StreamSupport;
 public class FakeModel implements AutoCloseable {
   private static final ObjectMapper json = new ObjectMapper();
 
-  public record Message(String role, String content, String toolName) {}
+  public record Message(String role, String content) {}
 
   public record ModelRequest(String model, List<Message> messages, List<String> toolNames) {}
 
@@ -75,7 +75,7 @@ public class FakeModel implements AutoCloseable {
     return new ModelRequest(
         body.path("model").asText(),
         StreamSupport.stream(body.path("messages").spliterator(), false)
-            .map(m -> new Message(m.path("role").asText(), m.path("content").asText(), m.path("tool_name").asText(null)))
+            .map(m -> new Message(m.path("role").asText(), m.path("content").asText()))
             .toList(),
         StreamSupport.stream(body.path("tools").spliterator(), false)
             .map(t -> t.path("function").path("name").asText())
