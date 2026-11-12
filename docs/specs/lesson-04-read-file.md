@@ -12,45 +12,46 @@ whole of tool calling.
 ## Requirements
 
 - Keep everything lesson 03 does: the loop, the conversation, the labels.
-- Send one tool with every request: `read_file`, taking a single string `path`.
-- When a reply asks for a tool call, read that path and send the contents back as a `tool`
-  message answering that call, then ask the model again.
+- Send one tool with every request: `read_file`, taking a single string `path`. In LangChain4j
+  that is a `ToolSpecification` handed to `ChatRequest`.
+- When a reply asks for a tool call, read that path and send the contents back as a
+  `ToolExecutionResultMessage` answering that call, then ask the model again.
 - Keep the assistant's tool-call message in the conversation too — the model has to see what
   it asked for.
-- Print the reply that comes back from the second request.
+- Print the reply that comes back from the second request. A reply that is only a tool call has
+  no text, so print it as an empty string rather than `null`.
 - **Run only the first tool call.** A reply can carry several; handling more than one is
   lesson 06, and doing it here spends that lesson early.
-- One file per tool: `src/tools/read-file.ts` owns this tool — the schema the model is sent,
-  and what happens when it is called. `src/tools/index.ts` owns the plumbing every tool shares.
+- One file per tool: `tools/ReadFile.java` owns this tool — the schema the model is sent, and
+  what happens when it is called. `tools/Tools.java` owns the plumbing every tool shares.
   Lessons 08 and 09 then add a file instead of growing one.
 - Each tool parses its own arguments. The model sends them as a JSON string, so `run` takes
-  that string and names the shape it expects — one `type Arguments` per tool file.
-- Nothing outside `src/llm.ts` imports from the SDK. It speaks the provider's wire format and
-  hands the rest of the program plain types of your own. Get this wrong and swapping models
-  later means editing every file instead of one.
-- `src/llm.ts` owns the messages. `src/index.ts` gains the `if`, and nothing else.
+  that string and reads it into the shape it expects — one `record Arguments` per tool file.
+- Nothing outside `Llm.java` imports `dev.langchain4j`. It speaks the library's types and hands
+  the rest of the program plain records of your own — `Reply`, `ToolCall`, `ToolSchema`. Get this
+  wrong and swapping the library later means editing every file instead of one.
+- `Llm.java` owns the messages. `Main.java` gains the `if`, and nothing else.
 
 ## Example
 
-Run `npm start` in this repo, then try:
+Run `mvn -q compile exec:java` in this repo, then try:
 
 ```text
-You: read src/cli.ts and tell me what it does
-Assistant: It reads a line from the terminal, prints the assistant's reply, and exits when
-the input ends.
+You: read src/main/java/agent/Cli.java and tell me what it does
+Assistant: It prints a prompt, reads a line from the terminal, prints the assistant's reply,
+and exits when the input ends.
 ```
 
 Two requests went out. The first came back asking for `read_file`, and you never saw it.
 
-Ask about `src/index.ts` instead and the reply comes back empty. That is not a bug: `index.ts`
-is a handful of imports, so the model reads it, decides it needs `cli.ts` too, and asks for a
-second file — and one round of tools is all this lesson does. Lesson 07 is where that stops
-happening.
+Small local models are less predictable than hosted ones. Yours may answer without reading
+anything, or reply with nothing at all. Nothing is broken: asking again, or naming the tool —
+"use read_file on ..." — usually gets the call.
 
 ## Acceptance test
 
 ```sh
-npm test -- lesson-04
+mvn test -Dtest='Lesson04*'
 ```
 
 ## Pressure test
@@ -58,17 +59,16 @@ npm test -- lesson-04
 Ask for two files at once:
 
 ```text
-You: compare src/cli.ts and src/llm.ts
-BadRequestResponseError: Provider returned error
-  "No tool output found for function call call_aCEI1sueCUdpFkzRYV6RZnEX."
+You: Use read_file on both pom.xml and .gitignore, and say what each one contains.
+Assistant: The `.gitignore` file lists patterns for files and directories to exclude from Git...
 ```
 
-The model asked for both files in one reply. You ran the first, threw the second away, and the
-next request went out with two calls and one answer — which no provider accepts. OpenAI says
-what you see above; Google says `Please ensure that the number of function response parts is
-equal to the number of function call parts`. Same rule, different wording: **every tool call
-needs its own answer.**
+Only `.gitignore` is described. The model asked for both files in one reply; you ran the first,
+threw the second away, and the next request went out with two calls and one answer. Ollama does
+not complain — it just works with what it has, so the answer quietly covers half the question.
+Hosted providers are stricter and reject exactly this request. Same rule either way: **every tool
+call needs its own answer.**
 
-Read the stack trace and you cannot tell which call was dropped, or that one was. The agent
-printed nothing before it died. Lesson 06 fixes the bug — but the next lesson comes first,
-because a crash with nothing on screen in front of it is a crash you debug by guessing.
+Nothing on screen says a call was dropped, or that there were two. The agent printed nothing
+about the tool at all. Lesson 06 fixes the bug — but the next lesson comes first, because a bug
+you cannot see is a bug you debug by guessing.

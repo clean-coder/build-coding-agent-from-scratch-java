@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: ${{ matrix.os }} · Java ${{ matrix.java }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        java: [21, 25]
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.java }}
+          cache: maven
+
+      # main ships lesson 1 built and lessons 2-10 red by design; solution has them all.
+      - name: Acceptance tests
+        run: |
+          if [ "${{ github.ref_name }}" = solution ]; then
+            mvn -B test
+          else
+            mvn -B test -Dtest='Lesson01*'
+          fi
+
+      - name: Kata project compiles
+        run: mvn -B -q -f kata/pom.xml test

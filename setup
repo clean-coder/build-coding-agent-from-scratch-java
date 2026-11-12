@@ -1,0 +1,60 @@
+#!/bin/sh
+# One-time setup after cloning. Run it with: ./setup
+# It checks for the tools you need, makes sure Ollama is running with a model that can call tools,
+# and builds the project once so Maven's downloads are out of the way.
+#
+# With --check, it only reports what is missing instead of downloading or building -
+# for a coding agent (or CI) to run to verify things are ready.
+set -e
+cd "$(dirname "$0")"
+check_only=false
+[ "$1" = "--check" ] && check_only=true
+
+base_url="${OLLAMA_BASE_URL:-http://localhost:11434}"
+model="${OLLAMA_MODEL:-qwen3:8b}"
+
+pass() { printf 'pass  %s\n' "$1"; }
+fail() { printf 'FAIL  %s\n\n      %s\n' "$1" "$2"; exit 1; }
+
+command -v java >/dev/null 2>&1 || fail "Java is not installed" \
+  "Install JDK 21 or newer from https://adoptium.net, then open a new terminal and run ./setup again."
+
+major=$(java -version 2>&1 | sed -n '1s/[^"]*"\([0-9]*\).*/\1/p')
+[ "$major" -ge 21 ] 2>/dev/null && pass "Java $major" \
+  || fail "Java $major is too old" "The project targets Java 21 or newer. Install a current JDK from https://adoptium.net."
+
+command -v mvn >/dev/null 2>&1 && pass "Maven $(mvn -v 2>/dev/null | sed -n '1s/Apache Maven \([^ ]*\).*/\1/p')" \
+  || fail "Maven is not installed" "Install it from https://maven.apache.org/install.html (or: brew install maven)."
+
+command -v git >/dev/null 2>&1 && pass "git $(git --version | cut -d' ' -f3)" \
+  || fail "git is not installed" "Install it from https://git-scm.com and open a new terminal."
+
+curl -s --max-time 5 "$base_url/api/version" >/dev/null 2>&1 && pass "Ollama is running at $base_url" \
+  || fail "Ollama is not reachable at $base_url" "Install it from https://ollama.com, then run: ollama serve"
+
+curl -s --max-time 5 "$base_url/api/tags" | grep -q "\"name\":\"$model\"" && pass "Model $model is pulled" \
+  || fail "Model $model is not pulled" "Run: ollama pull $model — or set OLLAMA_MODEL to a model you already have."
+
+if $check_only; then
+  [ -d target ] && pass "Project built" || fail "Project not built yet" "Run: ./setup"
+else
+  mvn -q -B compile 2>&1 | grep -v WARNING || true
+  pass "Project built"
+fi
+
+# The check that matters: a model that chats fine can still be unable to emit a tool call, and
+# that only surfaces in lesson 4. So ask it to use a tool and see whether it does.
+reply=$(curl -s --max-time 180 "$base_url/api/chat" -d "{
+  \"model\": \"$model\", \"stream\": false,
+  \"messages\": [{\"role\": \"user\", \"content\": \"Read the file pom.xml\"}],
+  \"tools\": [{\"type\": \"function\", \"function\": {
+    \"name\": \"read_file\", \"description\": \"Read a file from disk\",
+    \"parameters\": {\"type\": \"object\", \"properties\": {\"path\": {\"type\": \"string\"}}, \"required\": [\"path\"]}}}]
+}")
+
+echo "$reply" | grep -q '"tool_calls"' && pass "$model calls tools" \
+  || fail "$model answered with text instead of calling the tool" \
+    "It will not carry the workshop. Pull a model with tool support (ollama.com/search?c=tools) and set OLLAMA_MODEL."
+
+echo
+echo "You're set up. Say \"coach me\" to start lesson 2."

@@ -16,19 +16,18 @@ agent that can work something out.
 - If that reply also asks for tools, run them and ask again. Repeat.
 - Stop when a reply carries no tool calls, and print its text.
 - The outer loop — prompt, answer, prompt again — does not change.
-- In `src/index.ts` the `if` from lesson 04 becomes a `while`. That is the whole lesson.
+- In `Main.java` the `if` from lesson 04 becomes a `while`. That is the whole lesson.
 
 ## Example
 
-Run `npm start` in this repo, then try:
+Run `mvn -q compile exec:java` in this repo, then try:
 
 ```text
-You: read src/index.ts, then read the files it imports
-→ read_file {"path":"src/index.ts"}
-→ read_file {"path":"src/cli.ts"}
-→ read_file {"path":"src/llm.ts"}
-→ read_file {"path":"src/tools/index.ts"}
-Assistant: index.ts is the loop; cli.ts the terminal, llm.ts the model call, tools/ the tools.
+You: read pom.xml, then read whichever file holds its main class
+→ read_file {"path":"pom.xml"}
+→ read_file {"path":"src/main/java/agent/Main.java"}
+→ read_file {"path":"src/main/java/agent/Cli.java"}
+Assistant: pom.xml runs agent.Main, which loops over Cli.ask() and Llm.complete().
 ```
 
 Three requests, two rounds of tools, and the agent worked out the second round for itself.
@@ -36,7 +35,7 @@ Three requests, two rounds of tools, and the agent worked out the second round f
 ## Acceptance test
 
 ```sh
-npm test -- lesson-07
+mvn test -Dtest='Lesson07*'
 ```
 
 ## Pressure test
@@ -44,17 +43,16 @@ npm test -- lesson-07
 Ask it to change something:
 
 ```text
-You: src/cli.ts prompts with "You: " — make it "you> " instead
-→ read_file {"path":"src/cli.ts"}
-Assistant: Change line 8 of src/cli.ts from terminal.setPrompt('You: ') to
-terminal.setPrompt('you> ').
+You: Cli.java prompts with "You: " — make it "you> " instead
+→ read_file {"path":"src/main/java/agent/Cli.java"}
+Assistant: Change the System.out.print("You: ") call to System.out.print("you> ").
 ```
 
 What it says back varies — some models quote the line, some hand you the whole file, some
 answer with nothing at all. Check the part that does not vary:
 
 ```sh
-git diff src/cli.ts
+git diff src/main/java/agent/Cli.java
 ```
 
 Empty. It found the line, and then it told you to type. It has one tool, and that tool only reads.

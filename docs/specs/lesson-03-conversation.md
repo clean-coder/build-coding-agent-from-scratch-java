@@ -5,20 +5,21 @@ Send the whole conversation on every request, so the agent remembers what was al
 ## Key concept
 
 The model is stateless. Every request starts from nothing, so memory is not something the
-model has — it is something you send. Keep the messages of the session in an array, append
-each prompt and each reply to it, and post the whole array every turn.
+model has — it is something you send. Keep the messages of the session in a list, append
+each prompt and each reply to it, and post the whole list every turn.
 
 ## Requirements
 
-- Keep everything lesson 02 does: the loop, the key check, the model default, the labels.
-- Record each prompt as a `user` message and each reply as an `assistant` message.
+- Keep everything lesson 02 does: the loop, the Ollama check, the model default, the labels.
+- Record each prompt as a `UserMessage` and each reply as an `AiMessage` — LangChain4j's types
+  for the `user` and `assistant` roles.
 - Send every message so far, oldest first, on every request.
-- Keep `src/index.ts` as it is. The conversation belongs in `src/llm.ts`, behind the same
+- Keep `Main.java` as it is. The conversation belongs in `Llm.java`, behind the same
   one-argument `complete` — the agent still asks, completes, and replies.
 
 ## Example
 
-Run `npm start`, then try:
+Run `mvn -q compile exec:java`, then try:
 
 ```text
 You: My name is Steven.
@@ -33,16 +34,16 @@ prompt.
 ## Acceptance test
 
 ```sh
-npm test -- lesson-03
+mvn test -Dtest='Lesson03*'
 ```
 
 ## Pressure test
 
-Run `npm start` in this repo, then try:
+Run the agent in this repo, then try:
 
 ```text
-You: What does src/index.ts do?
-Assistant: I do not have access to your files, but a file named index.ts usually...
+You: What does src/main/java/agent/Main.java do?
+Assistant: I do not have access to your files, but a file named Main.java usually...
 ```
 
 It remembers the conversation and knows nothing else. Everything it says about your code is a

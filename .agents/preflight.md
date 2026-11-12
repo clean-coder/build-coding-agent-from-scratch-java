@@ -12,17 +12,14 @@ passes, say so in one line and move on.
 ## 1 · The shell
 
 ```sh
-node -p "process.platform"
+uname -s
 ```
 
-- `darwin` or `linux` — carry on.
-- `win32` — carry on, and note two things. Every command below is POSIX shell, so this has to be
-  **Git Bash**, not PowerShell, which does not understand `&&`, `[ -d … ]` or `. ./.env`. And
-  Node comes from the nodejs.org installer, not `nvm` — POSIX `nvm` does not run on Windows at
-  all. Restart Git Bash after installing Node or it will still say `command not found`.
-
-Do not send anyone to WSL2 to get past this step. Windows is the least rehearsed platform here,
-so run the checks and let them say what is wrong.
+- `Darwin` or `Linux` — carry on.
+- Anything else (Windows) — carry on, and note that every command here is POSIX shell, so this
+  has to be **Git Bash** or WSL, not PowerShell, which does not understand `./setup`, `&&` or
+  `printf ... |`. Windows is the least rehearsed platform here, so run the checks and let them
+  say what is wrong.
 
 ## 2 · The environment
 
@@ -30,51 +27,46 @@ so run the checks and let them say what is wrong.
 ./setup --check
 ```
 
-On Windows, `sh setup --check`. `--check` only reports what's missing — it never installs or
-prompts, so you can run it without risking a hang waiting on input. It checks, in order: Node is
-22, 24 or 26 — the only lines every lesson's tests have been run on; git; `node_modules`; an
-OpenRouter key and a model in `.env`; that the shell is not exporting a different
-`OPENROUTER_API_KEY` or `OPENROUTER_MODEL` over the top of `.env` (Node's `--env-file` never
-overrides the shell, so the shell one silently wins); and the check that matters — whether the
-model will actually emit a `tool_call`. A model that chats fine can still be unable to, and that
-failure does not surface until lesson 4, silently, in the middle of a lesson everyone else has
-finished.
+On Windows, `sh setup --check`. `--check` only reports what is missing — it never downloads or
+prompts. It checks, in order: Java 21 or newer; Maven; git; that Ollama is running at
+`OLLAMA_BASE_URL` (default `http://localhost:11434`); that the model — `OLLAMA_MODEL`, default
+`qwen3:8b` — is pulled; that the project has been built; and the check that matters — whether
+the model will actually emit a `tool_call`. A model that chats fine can still be unable to, and
+that failure does not surface until lesson 4, silently, in the middle of a lesson everyone else
+has finished.
 
-It stops at the first failure and prints the fix. Most fixes are one command, `./setup` — it
-installs dependencies and prompts for an OpenRouter key itself (hidden input, verified against
-OpenRouter, written to `.env`). Run it in **their** terminal, not through a tool call — it waits
-on typed input. Then run `./setup --check` again until it says "You're set up".
+It stops at the first failure and prints the fix. Most fixes are one command:
 
-Never print the key, never echo `.env`, and never put it in a commit.
+- `ollama serve` (or open the Ollama app) if it is not running.
+- `ollama pull qwen3:8b` for the default model.
+- `./setup` — without `--check` — to build the project once so Maven's downloads are out of the
+  way.
 
-If it says the model answered with text instead of calling the tool, or that a provider is rate
-limiting it, switch models. Change one line in `.env`:
+Run `./setup` in **their** terminal, not through a tool call. Then run `./setup --check` again
+until it says "You're set up".
+
+If it says the model answered with text instead of calling the tool, switch models. Any model
+Ollama lists under the *tools* category works (ollama.com/search?c=tools):
 
 ```sh
-OPENROUTER_MODEL=openai/gpt-5.6-luna
+export OLLAMA_MODEL=llama3.1:8b
 ```
 
-A whole workshop costs cents, and it is the one that holds up best once the agent is running
-many tools at once. Nothing else in the repo changes.
-
-Do not switch to `google/gemini-3.7-flash`. It passes this check and then breaks in lesson 10;
-the README says why.
+Nothing else in the repo changes. Check that the model is already pulled with `ollama list`.
 
 ## 3 · The starting line
 
 ```sh
-npm test
+mvn test
 ```
 
-Expect **lesson 1 passing and lessons 2 to 10 failing** — nine red suites. That is correct and
-it is the point: lesson 1 ships already built so there is a working agent to change, and every
-other lesson is a failing assertion waiting to become an instruction. They go green one at a
-time. If lesson 1 fails, something above is wrong — go back.
+Expect **lesson 1 passing and lessons 2 to 10 failing** — nine red test classes. That is correct
+and it is the point: lesson 1 ships already built so there is a working agent to change, and
+every other lesson is a failing assertion waiting to become an instruction. They go green one at
+a time. If lesson 1 fails, something above is wrong — go back.
 
-Lesson 1's test spawns the real agent with piped input and checks it exits `0`, which makes it
-the only automated check of `src/cli.ts` in the repo. CI runs it on Windows, macOS and Linux on
-every Node line `engines` admits, so a red lesson 1 with everything above green is something
-about this machine, not a known bug — read the failure rather than reaching for WSL2.
+Lesson 1's test spawns the real agent in a child JVM with piped input and checks it exits `0`,
+which makes it the only automated check of `Cli.java` in the repo.
 
 ## 4 · Their agent
 

@@ -10,19 +10,19 @@ shape of the code around it did.
 
 ## Requirements
 
-- Run it with `npm start`.
-- Keep everything lesson 01 does: the key check, the model default, the `You:` and
+- Run it with `mvn -q compile exec:java`.
+- Keep everything lesson 01 does: the Ollama check, the model default, the `You:` and
   `Assistant:` labels.
 - After each reply, ask for another prompt.
 - Send only the latest prompt to the model.
 - Do not send earlier prompts or replies.
 - Stop when the input ends, or when the user presses Ctrl-C.
 - Neither way of stopping prints a stack trace.
-- Change `src/index.ts` only. `cli.ts` and `llm.ts` already do their part.
+- Change `Main.java` only. `Cli.java` and `Llm.java` already do their part.
 
 ## Example
 
-Run `npm start`, then try:
+Run `mvn -q compile exec:java`, then try:
 
 ```text
 You: What is the capital of France?
@@ -36,12 +36,12 @@ Two questions, one process.
 ## Acceptance test
 
 ```sh
-npm test -- lesson-02
+mvn test -Dtest='Lesson02*'
 ```
 
 ## Pressure test
 
-Run `npm start`, then try:
+Run the agent, then try:
 
 ```text
 You: My name is Steven.

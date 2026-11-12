@@ -35,7 +35,7 @@ keep going just because you have momentum.
 ## Rules
 
 - Never `jfdi` past the end of the current lesson.
-- Never touch a lesson acceptance test — anything matching `test/lesson-*`. Those are the specification.
+- Never touch a lesson acceptance test — anything matching `src/test/java/agent/Lesson*`. Those are the specification.
 - **Commit only when you finish a whole lesson** — that is `.agents/coach-me.md` step 18, with
   the gate and the pressure test done first. A single mid-lesson step gets no commit. Subject
   when you do commit: `Implement lesson <N>: <slug>`.

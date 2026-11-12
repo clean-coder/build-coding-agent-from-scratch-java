@@ -13,8 +13,7 @@ and learn nothing — going slow is the entire point.
 If `.preflight-ok` does not exist, ask in one line whether preflight passed. If they say yes,
 `touch .preflight-ok` and carry on — otherwise you will ask again at the start of every lesson.
 Run `.agents/preflight.md` only if they say no or are not sure. Do not re-run it on a machine that
-already passed — it costs two minutes and a live API call, and the whole room is starting at
-once.
+already passed — it costs a minute and a live model call.
 
 ## Process
 
@@ -26,7 +25,7 @@ once.
    out which step they actually reached, say so in one line, and resume from the next step.
 5. Read the spec in full — `## Key concept`, `## Requirements`, `## Example`,
    `## Acceptance test`, `## Pressure test`.
-6. Read that lesson's acceptance test in `test/`. It is the definition of done and it tells you
+6. Read that lesson's acceptance test in `src/test/java/agent/`. It is the definition of done and it tells you
    exactly what observable behavior the step has to produce.
 7. If the spec is unclear, stop and ask. Do not guess.
 8. Check the working tree. Leave unrelated changes alone.
@@ -50,7 +49,7 @@ once.
 16. Run the gate. See **The gate**.
 17. Run the pressure test. See **The pressure test**.
 18. Then, without asking and without narrating: set the row to `Done`, confirm no other row
-    moved, and commit `src/` and the ledger together with the subject
+    moved, and commit `src/main/` and the ledger together with the subject
     `Implement lesson <N>: <slug>` — e.g. `Implement lesson 4: read file`. It matches the tag
     they can diff against. Report it in one line when it is done.
 
@@ -58,7 +57,7 @@ once.
 
 1. **What this achieves** — one sentence, in terms of behavior they will be able to see.
 2. **Where** — the file and line, with the surrounding code quoted so they can find it by eye:
-   "In `src/index.ts` around line 12, you should see this:"
+   "In `Main.java` around line 12, you should see this:"
 3. **What to change** — specific enough to type, short enough to hold in their head.
 4. **Why** — one line. If you cannot say why in one line, the step is too big; split it.
 5. **The offer** — end with: *Make the change, or say "jfdi" and I'll do it.*
@@ -71,10 +70,10 @@ tool definition. The visible thing first, the supporting code after.
 ## The gate
 
 Run this lesson's acceptance test, and only it. The number is **two digits, zero-padded** —
-`lesson-02` … `lesson-10`:
+`Lesson02` … `Lesson10`:
 
 ```sh
-npm test -- lesson-<NN>
+mvn test -Dtest='Lesson<NN>*'
 ```
 
 The row does not become `Done` until that test passes. Not "looks right", not "I think that's
@@ -84,7 +83,7 @@ If it fails, read the assertion and coach the fix one small step at a time, same
 other step, always offering `jfdi`. If it keeps failing and the fix is outside the spec, stop
 and say so plainly rather than widening the change.
 
-Then run `npm test` once, whole suite. **Every lesson still unbuilt will be red, and that is
+Then run `mvn test` once, whole suite. **Every lesson still unbuilt will be red, and that is
 the ledger working, not a problem.** A fresh clone starts with nine red suites and they go
 green one lesson at a time. Do not mention them, do not investigate them, and above all do not
 start fixing them — that is the next lesson, and it is not yours to take. The only failure that
@@ -98,7 +97,7 @@ Run the agent *they* are building — not yourself — feeding the prompts in on
 blocks on an interactive terminal:
 
 ```sh
-printf 'My name is Steven.\nWhat is my name?\n' | npm start
+printf 'My name is Steven.\nWhat is my name?\n' | mvn -q compile exec:java
 ```
 
 Never answer the pressure-test prompt yourself. You have memory and tools they have not built
@@ -108,8 +107,9 @@ That failure is the entire curriculum. Each lesson ends by hitting a wall, and t
 next lesson's reason to exist. A learner who is told "it can't do X yet" shrugs. A learner who
 watches it drop the second file remembers it. Then say, in one line, which lesson fixes it.
 
-If the model call rate-limits, try once more, then show the transcript from the spec instead
-and move on. Do not sit in a retry loop — the room is moving.
+A local model can be slow, and the first request after a cold start loads it into memory. If a
+call times out, try once more, then show the transcript from the spec instead and move on. Do
+not sit in a retry loop.
 
 **Never fix the pressure test.** It is not a bug.
 
@@ -132,10 +132,10 @@ grep -n '^\[' "$(ls -t logs/*.log | head -1)" | tail -20
 ```
 
 ```text
-1:[…45.858Z] You: compare src/cli.ts and src/llm.ts
+1:[…45.858Z] You: compare pom.xml and .gitignore
 2:[…45.858Z] --> request 1
 34:[…51.775Z] <-- reply 1 after 5917ms
-104:[…51.776Z] → read_file {"path":"src/cli.ts"}
+104:[…51.776Z] → read_file {"path":"pom.xml"}
 ```
 
 Do not `tail` it blind. A reply block runs to seventy lines, and a model that returns its
@@ -143,7 +143,7 @@ reasoning can make one far longer than that.
 
 The log answers most of what you would otherwise guess at — whether the model was sent what they
 think it was sent, whether it asked for one tool call or two, what a tool actually returned,
-and whether a crash came from OpenRouter or from their code. Say which line told you, so they
+and whether a crash came from Ollama or from their code. Say which line told you, so they
 learn to read it themselves rather than taking your word for it.
 
 Lesson 5's own pressure test is the clearest example: one arrow on screen, and a reply in the
@@ -162,10 +162,10 @@ mean it. Two levers, in order:
 
   ```sh
   git diff lesson-3-conversation lesson-4-read-file   # this lesson as one diff
-  git checkout lesson-4-read-file -- src/             # take the working version and move on
+  git checkout lesson-4-read-file -- src/main/        # take the working version and move on
   ```
 
-  Use the `-- src/` form. A bare `git checkout lesson-4-read-file` moves them onto a detached
+  Use the `-- src/main/` form. A bare `git checkout lesson-4-read-file` moves them onto a detached
   HEAD and takes the rest of the tree with it.
 
   Then finish the lesson normally — run the gate, run the pressure test, flip the ledger,
@@ -175,8 +175,8 @@ mean it. Two levers, in order:
 ## Rules
 
 - One lesson. Never start the next one, however small it looks.
-- Never edit files under `src/` unless they asked you to, and then only the current step.
-- **Never edit a lesson acceptance test — anything matching `test/lesson-*`.** Those are the
+- Never edit files under `src/main/` unless they asked you to, and then only the current step.
+- **Never edit a lesson acceptance test — anything matching `src/test/java/agent/Lesson*`.** Those are the
   specification; making one pass by changing it wastes their whole evening. Scratch test files
   a pressure test tells you to create are the one exception, and you delete them after.
 - Never edit spec prose. Only the status column of `docs/specs/README.md`.

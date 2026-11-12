@@ -6,27 +6,31 @@ Run every tool call in a reply, instead of the first one and no others.
 
 One assistant message can carry several tool calls. They do not depend on each other — that is
 why the model sent them together — so run them all, at the same time, and answer each one with
-its own `tool` message. Every call needs a reply, or the next request is malformed.
+its own `ToolExecutionResultMessage`. Every call needs an answer, or the next request is
+malformed.
 
 ## Requirements
 
 - Keep everything lesson 05 does.
 - Run every tool call in the reply, not just the first.
-- Send one `tool` message per call, each carrying the id of the call it answers.
+- Send one tool message per call, in the order the calls came, each carrying the id of the call
+  it answers.
 - Run the calls concurrently. Nothing in a reply waits on anything else in the same reply.
 - Print a line for each call, as in lesson 05.
-- `src/tools/index.ts` runs the list; the tool files themselves do not change. `src/index.ts`
-  changes from one call to all of them, and nothing else.
+- `tools/Tools.java` runs the list; the tool files themselves do not change. `Main.java` changes
+  from one call to all of them, and nothing else.
+- Send all the answers in **one** request. Asking the model again after each answer is a
+  different bug.
 
 ## Example
 
-Run `npm start` in this repo, then try:
+Run `mvn -q compile exec:java` in this repo, then try:
 
 ```text
-You: compare src/cli.ts and src/llm.ts
-→ read_file {"path":"src/cli.ts"}
-→ read_file {"path":"src/llm.ts"}
-Assistant: cli.ts owns the terminal; llm.ts owns the model call.
+You: Use read_file on both pom.xml and .gitignore, and say what each one contains.
+→ read_file {"path":"pom.xml"}
+→ read_file {"path":".gitignore"}
+Assistant: pom.xml is the Maven build; .gitignore keeps target/ and logs/ out of git.
 ```
 
 Two arrows now, and lesson 04's silently dropped file is gone.
@@ -34,7 +38,7 @@ Two arrows now, and lesson 04's silently dropped file is gone.
 ## Acceptance test
 
 ```sh
-npm test -- lesson-06
+mvn test -Dtest='Lesson06*'
 ```
 
 ## Pressure test
@@ -42,12 +46,12 @@ npm test -- lesson-06
 Ask for something it has to look at twice:
 
 ```text
-You: read src/index.ts, then read the files it imports
-→ read_file {"path":"src/index.ts"}
+You: read pom.xml, then read whichever file holds its main class
+→ read_file {"path":"pom.xml"}
 Assistant:
 ```
 
-The reply is blank. The model read `index.ts`, saw the imports, and asked to read them — but
+The reply is blank. The model read `pom.xml`, saw `agent.Main`, and asked to read that — but
 the agent had already spent its one round of tools, so it printed the empty text of a message
 that was nothing but a tool call. It can look once. The next lesson lets it keep going until
 it has an answer.
