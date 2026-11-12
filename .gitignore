@@ -1,0 +1,10 @@
+target/
+.idea/
+*.iml
+
+logs/
+*.log
+.preflight-ok
+
+CLAUDE.local.md
+.DS_Store
