@@ -11,7 +11,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class Lesson02AgentLoopTest {
 
-    private static final Class mainClass = agent.lesson01.Main.class;
+    private static final Class mainClass = agent.lesson02.Main.class;
 
     @Test
     void answersEveryPromptUntilTheInputEnds() throws Exception {
