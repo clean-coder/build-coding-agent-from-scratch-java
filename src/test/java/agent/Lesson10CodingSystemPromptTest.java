@@ -15,10 +15,13 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 class Lesson10CodingSystemPromptTest {
+
+  private static final Class mainClass = agent.lesson01.Main.class;
+
   @Test
   void putsASystemPromptInFrontOfTheConversation() throws Exception {
     try (FakeModel model = startFakeModel(says("Read first, then edit."))) {
-      Session session = runAgent(model, "how do you work?\n");
+      Session session = runAgent(mainClass, model, "how do you work?\n");
       var sent = model.requests().get(0).messages();
 
       assertThat(session.output()).contains("Assistant: Read first, then edit.");
@@ -33,7 +36,7 @@ class Lesson10CodingSystemPromptTest {
   void sendsTheOnePromptOnEveryRequestHoweverTheTurnGoes() throws Exception {
     try (FakeModel model = startFakeModel(
         calls(tool("bash", Map.of("command", "echo hello"))), says("It printed hello."), says("Yes, hello."))) {
-      Session session = runAgent(model, "run that echo\nwhat did it print?\n");
+      Session session = runAgent(mainClass, model, "run that echo\nwhat did it print?\n");
       var last = model.requests().get(2).messages();
 
       assertThat(session.output()).contains("Assistant: Yes, hello.");

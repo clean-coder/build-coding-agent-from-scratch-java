@@ -15,13 +15,16 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 class Lesson04ReadFileTest {
+
+  private static final Class mainClass = agent.lesson01.Main.class;
+
   @Test
   void runsTheToolCallTheModelAsksForAndAnswersFromTheContents() throws Exception {
     Path note = aFileContaining("the shed key is under the mat");
 
     try (FakeModel model = startFakeModel(
         calls(tool("read_file", Map.of("path", note.toString()))), says("The shed key is under the mat."))) {
-      Session session = runAgent(model, "where is the shed key?\n");
+      Session session = runAgent(mainClass, model, "where is the shed key?\n");
       var offered = model.requests().get(0).toolNames();
       var sentBack = toolResultsIn(model.requests().get(1));
 

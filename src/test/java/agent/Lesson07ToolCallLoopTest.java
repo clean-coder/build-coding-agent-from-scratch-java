@@ -15,6 +15,9 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 class Lesson07ToolCallLoopTest {
+
+  private static final Class mainClass = agent.lesson01.Main.class;
+
   @Test
   void keepsRunningToolCallsUntilAReplyComesBackWithoutAny() throws Exception {
     Path shed = aFileContaining("the shed key is under the mat");
@@ -24,7 +27,7 @@ class Lesson07ToolCallLoopTest {
         calls(tool("read_file", Map.of("path", shed.toString()))),
         calls(tool("read_file", Map.of("path", bike.toString()))),
         says("Key under the mat, lock 1234."))) {
-      Session session = runAgent(model, "read my notes one at a time\n");
+      Session session = runAgent(mainClass, model, "read my notes one at a time\n");
       var sentBack = toolResultsIn(model.requests().get(2));
 
       assertThat(session.output()).contains("Assistant: Key under the mat, lock 1234.");

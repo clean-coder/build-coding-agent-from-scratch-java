@@ -56,7 +56,7 @@
         <artifactId>exec-maven-plugin</artifactId>
         <version>3.5.0</version>
         <configuration>
-          <mainClass>agent.Main</mainClass>
+          <mainClass>agent.lesson01.Main</mainClass>
         </configuration>
       </plugin>
     </plugins>

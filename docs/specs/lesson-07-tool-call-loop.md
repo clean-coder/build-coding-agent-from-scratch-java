@@ -27,7 +27,7 @@ You: read pom.xml, then read whichever file holds its main class
 → read_file {"path":"pom.xml"}
 → read_file {"path":"src/main/java/agent/Main.java"}
 → read_file {"path":"src/main/java/agent/Cli.java"}
-Assistant: pom.xml runs agent.Main, which loops over Cli.ask() and Llm.complete().
+Assistant: pom.xml runs agent.lesson01.Main, which loops over Cli.ask() and Llm.complete().
 ```
 
 Three requests, two rounds of tools, and the agent worked out the second round for itself.

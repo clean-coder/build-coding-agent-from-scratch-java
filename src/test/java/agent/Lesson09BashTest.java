@@ -14,12 +14,15 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 class Lesson09BashTest {
+
+  private static final Class mainClass = agent.lesson01.Main.class;
+
   @Test
   void runsTheCommandAndHandsTheOutputBackToTheModel() throws Exception {
     try (FakeModel model = startFakeModel(
         calls(tool("bash", Map.of("command", "echo the-shed-key-is-under-the-mat"))),
         says("It printed the-shed-key-is-under-the-mat."))) {
-      Session session = runAgent(model, "run that echo\n");
+      Session session = runAgent(mainClass, model, "run that echo\n");
       var offered = model.requests().get(0).toolNames();
       var sentBack = toolResultsIn(model.requests().get(1));
 
@@ -33,7 +36,7 @@ class Lesson09BashTest {
   void answersAFailingCommandWithWhatItPrintedAndTheExitCode() throws Exception {
     try (FakeModel model = startFakeModel(
         calls(tool("bash", Map.of("command", "echo no-such-target >&2; exit 3"))), says("That target is missing."))) {
-      Session session = runAgent(model, "run the build\n");
+      Session session = runAgent(mainClass, model, "run the build\n");
       var sentBack = toolResultsIn(model.requests().get(1));
 
       assertThat(session.output()).contains("Assistant: That target is missing.");
@@ -45,7 +48,7 @@ class Lesson09BashTest {
   void cutsOffAnOutputFarTooBigToSend() throws Exception {
     try (FakeModel model = startFakeModel(
         calls(tool("bash", Map.of("command", "head -c 40000 /dev/zero | tr '\\0' x"))), says("That was a wall of x."))) {
-      Session session = runAgent(model, "print the whole log\n");
+      Session session = runAgent(mainClass, model, "print the whole log\n");
       var sentBack = toolResultsIn(model.requests().get(1));
 
       assertThat(session.output()).contains("Assistant: That was a wall of x.");
@@ -58,7 +61,7 @@ class Lesson09BashTest {
   void answersAToolThatThrowsInsteadOfDyingWithIt() throws Exception {
     try (FakeModel model = startFakeModel(
         calls(tool("read_file", Map.of("path", "no/such/file.txt"))), says("There is no file at that path."))) {
-      Session session = runAgent(model, "read no/such/file.txt\n");
+      Session session = runAgent(mainClass, model, "read no/such/file.txt\n");
       var sentBack = toolResultsIn(model.requests().get(1));
 
       assertThat(session.output()).contains("Assistant: There is no file at that path.");

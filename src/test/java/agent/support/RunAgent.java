@@ -8,14 +8,14 @@ import java.util.Map;
 public class RunAgent {
   public record Session(String output, int exitCode) {}
 
-  public static Session runAgent(FakeModel model, String input) throws Exception {
-    return runAgent(model.url(), input);
+  public static Session runAgent(Class mainClass, FakeModel model, String input) throws Exception {
+    return runAgent(mainClass, model.url(), input);
   }
 
   // Spawned rather than called, so the test says nothing about how the agent is built.
-  public static Session runAgent(String baseUrl, String input) throws Exception {
+  public static Session runAgent(Class mainClass, String baseUrl, String input) throws Exception {
     String java = Path.of(System.getProperty("java.home"), "bin", "java").toString();
-    ProcessBuilder agent = new ProcessBuilder(java, "-cp", System.getProperty("java.class.path"), "agent.Main");
+    ProcessBuilder agent = new ProcessBuilder(java, "-cp", System.getProperty("java.class.path"), mainClass.getName());
 
     agent.directory(new File(System.getProperty("user.dir")));
     agent.redirectErrorStream(true);

@@ -15,6 +15,9 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 class Lesson08EditFileTest {
+
+  private static final Class mainClass = agent.lesson01.Main.class;
+
   @Test
   void appliesTheEditTheModelAsksFor() throws Exception {
     Path note = aFileContaining("the shed key is under the mat");
@@ -22,7 +25,7 @@ class Lesson08EditFileTest {
     try (FakeModel model = startFakeModel(
         calls(tool("edit_file", Map.of("path", note.toString(), "oldText", "under the mat", "newText", "in the drawer"))),
         says("The key is in the drawer now."))) {
-      Session session = runAgent(model, "the key moved to the drawer\n");
+      Session session = runAgent(mainClass, model, "the key moved to the drawer\n");
       var offered = model.requests().get(0).toolNames();
 
       assertThat(session.output()).contains("Assistant: The key is in the drawer now.");
@@ -39,7 +42,7 @@ class Lesson08EditFileTest {
         calls(tool("edit_file", Map.of("path", note.toString(), "oldText", "key", "newText", "fob"))),
         calls(tool("edit_file", Map.of("path", note.toString(), "oldText", "spare key", "newText", "spare fob"))),
         says("The spare one, then."))) {
-      Session session = runAgent(model, "call the spare key a fob\n");
+      Session session = runAgent(mainClass, model, "call the spare key a fob\n");
 
       assertThat(session.output()).contains("Assistant: The spare one, then.");
       assertThat(Files.readString(note)).isEqualTo("the key, and the spare fob");
@@ -50,7 +53,7 @@ class Lesson08EditFileTest {
   void answersAToolItDoesNotHaveInsteadOfFallingOver() throws Exception {
     try (FakeModel model = startFakeModel(
         calls(tool("delete_file", Map.of("path", "anything.txt"))), says("No such tool, understood."))) {
-      Session session = runAgent(model, "delete anything.txt\n");
+      Session session = runAgent(mainClass, model, "delete anything.txt\n");
       var sentBack = toolResultsIn(model.requests().get(1));
 
       assertThat(session.output()).contains("Assistant: No such tool, understood.");

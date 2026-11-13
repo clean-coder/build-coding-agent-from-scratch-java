@@ -15,6 +15,9 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 class Lesson05ObservabilityTest {
+
+  private static final Class mainClass = agent.lesson01.Main.class;
+
   // The log may be pretty-printed or not, so shape is asserted without the whitespace.
   private static String dense(String text) {
     return text.replaceAll("\\s+", "");
@@ -26,7 +29,7 @@ class Lesson05ObservabilityTest {
 
     try (FakeModel model = startFakeModel(
         calls(tool("read_file", Map.of("path", note.toString()))), says("The shed key is under the mat."))) {
-      Session session = runAgent(model, "where is the shed key?\n");
+      Session session = runAgent(mainClass, model, "where is the shed key?\n");
       String transcript = transcriptOf(session);
       String toolCall = "read_file {\"path\":" + quoted(note.toString()) + "}";
 
@@ -43,7 +46,7 @@ class Lesson05ObservabilityTest {
 
     try (FakeModel model = startFakeModel(
         calls(tool("read_file", Map.of("path", note.toString()))), says("The shed key is under the mat."))) {
-      Session session = runAgent(model, "where is the shed key?\n");
+      Session session = runAgent(mainClass, model, "where is the shed key?\n");
       String transcript = transcriptOf(session);
       int advertised = model.requests().get(0).toolNames().size();
 
@@ -59,7 +62,7 @@ class Lesson05ObservabilityTest {
   @Test
   void logsWhyTheModelCallFailedBeforeTheAgentDiesOfIt() throws Exception {
     try (FakeModel model = startFakeModel(fails(400, "that model is not serving requests"))) {
-      Session session = runAgent(model, "where is the shed key?\n");
+      Session session = runAgent(mainClass, model, "where is the shed key?\n");
       String transcript = transcriptOf(session);
 
       assertThat(transcript).contains("400").contains("that model is not serving requests");

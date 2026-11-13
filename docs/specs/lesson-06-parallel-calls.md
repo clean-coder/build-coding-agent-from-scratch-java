@@ -51,7 +51,7 @@ You: read pom.xml, then read whichever file holds its main class
 Assistant:
 ```
 
-The reply is blank. The model read `pom.xml`, saw `agent.Main`, and asked to read that — but
+The reply is blank. The model read `pom.xml`, saw `agent.lesson01.Main`, and asked to read that — but
 the agent had already spent its one round of tools, so it printed the empty text of a message
 that was nothing but a tool call. It can look once. The next lesson lets it keep going until
 it has an answer.
