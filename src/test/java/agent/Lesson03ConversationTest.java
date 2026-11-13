@@ -11,7 +11,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class Lesson03ConversationTest {
 
-    private static final Class mainClass = agent.lesson01.Main.class;
+    private static final Class mainClass = agent.lesson03.Main.class;
 
     @Test
     void sendsEveryEarlierMessageBackWithTheNextPrompt() throws Exception {
