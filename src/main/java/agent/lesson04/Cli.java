@@ -28,7 +28,6 @@ public class Cli {
 
   private static void say(String line) {
     System.out.println(line);
-    Log.record(line);
   }
 
 }

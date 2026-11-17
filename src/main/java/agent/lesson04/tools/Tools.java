@@ -1,7 +1,6 @@
 package agent.lesson04.tools;
 
 import agent.lesson04.Cli;
-import agent.lesson04.Log;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.langchain4j.agent.tool.ToolExecutionRequest;
@@ -35,10 +34,7 @@ public final class Tools {
     private static ToolExecutionResultMessage runOne(ToolExecutionRequest call) {
         Cli.using(call.name(), call.arguments());
 
-        long startedAt = System.currentTimeMillis();
         String output = outputOf(call);
-
-        Log.detail("<-- " + call.name() + " answered after " + (System.currentTimeMillis() - startedAt) + "ms", output);
 
         return ToolExecutionResultMessage.from(call, output);
     }
