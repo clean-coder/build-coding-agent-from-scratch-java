@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 
 class Lesson05ObservabilityTest {
 
-  private static final Class mainClass = agent.lesson01.Main.class;
+  private static final Class mainClass = agent.lesson05.Main.class;
 
   // The log may be pretty-printed or not, so shape is asserted without the whitespace.
   private static String dense(String text) {
