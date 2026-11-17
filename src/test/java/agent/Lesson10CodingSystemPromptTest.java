@@ -1,5 +1,6 @@
 package agent;
 
+import agent.lesson10.Main;
 import agent.support.FakeModel;
 import agent.support.RunAgent.Session;
 import org.junit.jupiter.api.Test;
@@ -13,11 +14,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class Lesson10CodingSystemPromptTest {
 
-    private static final Class mainClass = agent.lesson10.Main.class;
+    private static final Class<Main> mainClass = agent.lesson10.Main.class;
 
     @Test
     void putsASystemPromptInFrontOfTheConversation() throws Exception {
         try (FakeModel model = startFakeModel(says("Read first, then edit."))) {
+
             Session session = runAgent(mainClass, model, "how do you work?\n");
             var sent = model.requests().get(0).messages();
 

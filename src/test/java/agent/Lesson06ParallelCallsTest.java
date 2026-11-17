@@ -1,5 +1,6 @@
 package agent;
 
+import agent.lesson06.Main;
 import agent.support.FakeModel;
 import agent.support.RunAgent.Session;
 import org.junit.jupiter.api.Test;
@@ -16,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class Lesson06ParallelCallsTest {
 
-    private static final Class mainClass = agent.lesson06.Main.class;
+    private static final Class<Main> mainClass = agent.lesson06.Main.class;
 
     @Test
     void runsEveryToolCallInOneReplyNotJustTheFirst() throws Exception {

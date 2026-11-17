@@ -1,5 +1,6 @@
 package agent;
 
+import agent.lesson09.Main;
 import agent.support.FakeModel;
 import agent.support.RunAgent.Session;
 import org.junit.jupiter.api.Test;
@@ -14,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class Lesson09BashTest {
 
-    private static final Class mainClass = agent.lesson09.Main.class;
+    private static final Class<Main> mainClass = agent.lesson09.Main.class;
 
     @Test
     void runsTheCommandAndHandsTheOutputBackToTheModel() throws Exception {

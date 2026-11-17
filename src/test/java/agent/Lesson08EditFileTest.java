@@ -1,5 +1,6 @@
 package agent;
 
+import agent.lesson08.Main;
 import agent.support.FakeModel;
 import agent.support.RunAgent.Session;
 import org.junit.jupiter.api.Test;
@@ -17,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class Lesson08EditFileTest {
 
-    private static final Class mainClass = agent.lesson08.Main.class;
+    private static final Class<Main> mainClass = agent.lesson08.Main.class;
 
     @Test
     void appliesTheEditTheModelAsksFor() throws Exception {

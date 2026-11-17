@@ -1,5 +1,6 @@
 package agent;
 
+import agent.lesson04.Main;
 import agent.support.FakeModel;
 import agent.support.RunAgent.Session;
 import org.junit.jupiter.api.Test;
@@ -16,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class Lesson04ReadFileTest {
 
-    private static final Class mainClass = agent.lesson04.Main.class;
+    private static final Class<Main> mainClass = agent.lesson04.Main.class;
 
     @Test
     void runsTheToolCallTheModelAsksForAndAnswersFromTheContents() throws Exception {
