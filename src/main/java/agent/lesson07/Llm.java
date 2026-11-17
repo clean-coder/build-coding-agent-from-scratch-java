@@ -29,7 +29,7 @@ public class Llm {
             .timeout(Duration.ofMinutes(5))
             .build();
 
-    private static final List<ChatMessage> CONVERSATION = new ArrayList<>(List.of(SystemMessage.from(Prompt.CODING)));
+    private static final List<ChatMessage> CONVERSATION = new ArrayList<>();
     private static final ObjectMapper JSON = new ObjectMapper();
     private static int requests = 0;
 

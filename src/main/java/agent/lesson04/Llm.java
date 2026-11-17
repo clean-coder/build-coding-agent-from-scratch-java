@@ -22,7 +22,7 @@ public class Llm {
             .timeout(Duration.ofMinutes(5))
             .build();
 
-    private static final List<ChatMessage> CONVERSATION = new ArrayList<>(List.of(SystemMessage.from(Prompt.CODING)));
+    private static final List<ChatMessage> CONVERSATION = new ArrayList<>();
 
     public static AiMessage complete(String userInput) {
         return send(List.of(UserMessage.from(userInput)));
