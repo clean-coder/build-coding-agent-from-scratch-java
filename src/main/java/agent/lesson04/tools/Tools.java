@@ -27,8 +27,8 @@ public final class Tools {
     private Tools() {
     }
 
-    public static List<ToolExecutionResultMessage> run(List<ToolExecutionRequest> toolCalls) {
-        return toolCalls.parallelStream().map(Tools::runOne).toList();
+    public static ToolExecutionResultMessage run(ToolExecutionRequest toolCall) {
+        return runOne(toolCall);
     }
 
     private static ToolExecutionResultMessage runOne(ToolExecutionRequest call) {

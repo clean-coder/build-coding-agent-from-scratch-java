@@ -25,16 +25,16 @@ public class Llm {
     private static final List<ChatMessage> CONVERSATION = new ArrayList<>();
 
     public static AiMessage complete(String userInput) {
-        return send(List.of(UserMessage.from(userInput)));
+        return send(UserMessage.from(userInput));
     }
 
-    static AiMessage complete(List<ToolExecutionResultMessage> toolResults) {
-        return send(toolResults);
+    static AiMessage complete(ToolExecutionResultMessage toolResult) {
+        return send(toolResult);
     }
 
-    private static AiMessage send(List<? extends ChatMessage> messages) {
+    private static AiMessage send(ChatMessage message) {
         try {
-            CONVERSATION.addAll(messages);
+            CONVERSATION.add(message);
 
             ChatResponse response;
             try {
