@@ -28,28 +28,24 @@ public final class Tools {
     private Tools() {
     }
 
-    public static List<ToolExecutionResultMessage> run(List<ToolExecutionRequest> toolCalls) {
-        return toolCalls.parallelStream().map(Tools::runOne).toList();
-    }
-
-    private static ToolExecutionResultMessage runOne(ToolExecutionRequest call) {
-        Cli.using(call.name(), call.arguments());
+    public static ToolExecutionResultMessage run(ToolExecutionRequest toolCall) {
+        Cli.using(toolCall.name(), toolCall.arguments());
 
         long startedAt = System.currentTimeMillis();
-        String output = outputOf(call);
+        String output = outputOf(toolCall);
 
-        Log.detail("<-- " + call.name() + " answered after " + (System.currentTimeMillis() - startedAt) + "ms", output);
+        Log.detail("<-- " + toolCall.name() + " answered after " + (System.currentTimeMillis() - startedAt) + "ms", output);
 
-        return ToolExecutionResultMessage.from(call, output);
+        return ToolExecutionResultMessage.from(toolCall, output);
     }
 
-    private static String outputOf(ToolExecutionRequest call) {
-        Runner runner = RUNNERS.get(call.name());
+    private static String outputOf(ToolExecutionRequest toolCall) {
+        Runner runner = RUNNERS.get(toolCall.name());
 
-        if (runner == null) return "There is no tool called " + call.name() + ".";
+        if (runner == null) return "There is no tool called " + toolCall.name() + ".";
 
         try {
-            return runner.run(JSON.readTree(call.arguments()));
+            return runner.run(JSON.readTree(toolCall.arguments()));
         } catch (Exception reason) {
             return String.valueOf(reason);
         }

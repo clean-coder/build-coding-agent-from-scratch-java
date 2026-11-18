@@ -1,5 +1,6 @@
 package agent.lesson05;
 
+import dev.langchain4j.agent.tool.ToolExecutionRequest;
 import dev.langchain4j.data.message.AiMessage;
 
 import static agent.lesson05.tools.Tools.run;
@@ -11,7 +12,8 @@ public class Main {
             AiMessage response = Llm.complete(userInput);
 
             while (response.hasToolExecutionRequests()) {
-                response = Llm.complete(run(response.toolExecutionRequests()));
+                ToolExecutionRequest firstToolRequest = response.toolExecutionRequests().get(0);
+                response = Llm.complete(run(firstToolRequest));
             }
 
             Cli.reply(response.text());

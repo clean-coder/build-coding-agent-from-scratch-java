@@ -38,21 +38,21 @@ public class Llm {
     }
 
     public static AiMessage complete(String userInput) {
-        return send(List.of(UserMessage.from(userInput)));
+        return send(UserMessage.from(userInput));
     }
 
-    static AiMessage complete(List<ToolExecutionResultMessage> toolResults) {
-        return send(toolResults);
+    static AiMessage complete(ToolExecutionResultMessage toolResult) {
+        return send(toolResult);
     }
 
-    private static AiMessage send(List<? extends ChatMessage> messages) {
+    private static AiMessage send(ChatMessage message) {
         try {
-            CONVERSATION.addAll(messages);
+            CONVERSATION.add(message);
 
             int number = ++requests;
             long askedAt = System.currentTimeMillis();
 
-            Log.detail("--> request " + number + ", messages: " + CONVERSATION.size(), json(messages.stream().map(Llm::describe).toList()));
+            Log.detail("--> request " + number + ", messages: " + CONVERSATION.size(), json(CONVERSATION.stream().map(Llm::describe).toList()));
 
             ChatResponse response;
             try {
