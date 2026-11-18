@@ -1,8 +1,10 @@
 # Build a Coding Agent from Scratch — Java edition
 
-A Java port of [build-coding-agent-from-scratch](../build-coding-agent-from-scratch), using
+A Java port of [build-coding-agent-from-scratch](https://github.com/SDiamante13/build-coding-agent-from-scratch), using
 **Java 21+, Maven, [LangChain4j](https://docs.langchain4j.dev) and a local [Ollama](https://ollama.com) model**.
 No API key, no account, nothing leaves your machine.
+
+This Java port was done using [Claude](https://claude.com/claude-code).
 
 You use AI agents every day. Under the hood, every one of them is a while loop, a language
 model, and some tools. Over ten short lessons you will build one — until it can read your code,
