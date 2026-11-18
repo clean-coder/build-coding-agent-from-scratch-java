@@ -3,7 +3,6 @@ package agent.lesson06;
 import dev.langchain4j.data.message.AiMessage;
 
 import static agent.lesson06.tools.Tools.run;
-import static agent.lesson06.tools.Tools.run;
 
 public class Main {
     public static void main(String[] args) {

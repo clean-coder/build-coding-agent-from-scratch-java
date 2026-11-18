@@ -12,7 +12,7 @@ public class Main {
             AiMessage response = Llm.complete(userInput);
 
             while (response.hasToolExecutionRequests()) {
-                ToolExecutionRequest firstToolRequest = response.toolExecutionRequests().get(0);
+                ToolExecutionRequest firstToolRequest = response.toolExecutionRequests().getFirst();
                 response = Llm.complete(run(firstToolRequest));
             }
 
