@@ -14,6 +14,32 @@ LangChain4j supplies the model client and the message types. The loop, the tool 
 dispatch are yours: this repo deliberately does not use `AiServices` or `@Tool`, because those
 hide exactly the machinery you are here to see.
 
+## The `solutions` branch
+
+This branch contains the solutions for all the JUnit tests. Each lesson lives in its own
+package, `agent.lessonNN`, under `src/main/java/agent/`:
+
+- For the first few lessons only `Main.java` changes. `Cli` and `Llm` are shared, so they stay in
+  the top-level `agent` package and are not duplicated in a `lessonNN` package (lesson 1 and 2
+  use `agent.Cli` and `agent.Llm`; lesson 3 adds its own `Llm`).
+- As soon as a lesson needs a change to another class, the new version of that class sits next
+  to its `Main` in the `lessonNN` package and replaces the earlier one for that lesson and the
+  ones after it.
+
+To run the agent from the command line, change `<mainClass>` in the `exec-maven-plugin`
+configuration of `pom.xml` by hand. It starts out as `agent.lesson01.Main`; set it to the
+`Main` of the lesson you want to try, for example:
+
+```xml
+<mainClass>agent.lesson05.Main</mainClass>
+```
+
+Then run it as usual:
+
+```sh
+mvn -q compile exec:java
+```
+
 ## Setup
 
 You need JDK 21 or newer, Maven 3.9+, git, and [Ollama](https://ollama.com).
